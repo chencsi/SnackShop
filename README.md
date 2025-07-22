@@ -1,0 +1,2 @@
+# SnackShop
+Full-Stack Próbafeladat
