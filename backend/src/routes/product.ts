@@ -15,8 +15,7 @@ export default async function (fastify: FastifyInstance) {
 					where: { id: decoded.userId },
 				});
 				isAdmin = !!user?.isAdmin;
-			} catch {
-			}
+			} catch {}
 		}
 
 		const products = await prisma.product.findMany();
@@ -25,6 +24,42 @@ export default async function (fastify: FastifyInstance) {
 			reply.send(products);
 		} else {
 			const data = products.map(({ stock, ...rest }) => rest);
+			reply.send(data);
+		}
+	});
+
+	fastify.get("/api/products/:id", async (request, reply) => {
+		let isAdmin = false;
+
+		const authHeader = request.headers.authorization;
+		if (authHeader?.startsWith("Bearer ")) {
+			try {
+				const token = authHeader.replace("Bearer ", "");
+				const decoded = fastify.jwt.verify(token) as { userId: number };
+				const user = await prisma.user.findUnique({
+					where: { id: decoded.userId },
+				});
+				isAdmin = !!user?.isAdmin;
+			} catch {}
+		}
+
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		const productId = Number((request.params as any).id);
+		if (Number.isNaN(productId)) {
+			return reply.code(400).send({ error: "Invalid product id" });
+		}
+		const product = await prisma.product.findUnique({
+			where: { id: productId }
+		});
+
+		if (isAdmin) {
+			reply.send(product);
+		} else {
+			const data = {
+				"id": product?.id,
+				"name": product?.name,
+				"price": product?.price
+			};
 			reply.send(data);
 		}
 	});
