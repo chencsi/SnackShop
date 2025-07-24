@@ -1,7 +1,6 @@
 import React, { type ReactNode } from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import Navigation from '../components/Navigation';
-import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
 
 interface MainLayoutProps {
     children?: ReactNode;
@@ -9,16 +8,16 @@ interface MainLayoutProps {
 
 export const MainLayout = ({ children }: MainLayoutProps) => {
     return (
-        <ChakraProvider value={defaultSystem}>
+        <div className="flex flex-col min-h-screen">
             <header>
                 <Navigation />
             </header>
-            <main>
+            <main className="flex-1 flex flex-col justify-center">
                 {children ? children : <Outlet />}
             </main>
-            <footer>
+            {/* <footer className="bg-stone-800 text-center py-4">
                 footer
-            </footer>
-        </ChakraProvider>
+            </footer> */}
+        </div>
     );
 };
